@@ -12,6 +12,7 @@ build/
 # 私有部署配置（frp、systemd 等不上传）
 deploy/
 start_frpc.bat
+docs/
 
 # 生成的输出文件
 output/
