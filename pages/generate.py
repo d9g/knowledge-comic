@@ -289,7 +289,7 @@ if "comic_data" in st.session_state:
         key="edit_title",
     )
 
-    # ── 面板列表编辑 ──
+    # ── 面板列表编辑（从 JSON 提取字段→独立输入框→生成时组装回 JSON）──
     panels = data.get("panels", [])
     edited_panels = []
     for i, panel in enumerate(panels):
@@ -318,29 +318,10 @@ if "comic_data" in st.session_state:
                 "icons": [ic.strip() for ic in icons_str.split() if ic.strip()],
             })
 
-    # ── Footer 编辑 ──
-    edited_footer = st.text_input(
-        "📌 底部文案",
-        value=data.get("footer") or get_random_footer(),
-        max_chars=50,
-        key="edit_footer",
-    )
-
-    # ── 高级编辑（原始 JSON，默认折叠） ──
-    with st.expander("🔧 高级：编辑原始 JSON"):
-        # NOTE: 同步表单修改到 JSON
-        synced_data = dict(data)
-        synced_data["title"] = edited_title
-        synced_data["panels"] = edited_panels
-        synced_data["footer"] = edited_footer
-        edited_json = st.text_area(
-            "JSON",
-            value=json.dumps(synced_data, ensure_ascii=False, indent=2),
-            height=300,
-            label_visibility="collapsed",
-            key="mobile_json",
-        )
-        st.session_state["comic_data_edited"] = edited_json
+    # ── Footer：免费版不可编辑，固定随机引流文案 ──
+    # NOTE: 免费用户不能修改底部文案（引流入口），隐藏该输入框
+    # 后续会员版可以开放此域
+    edited_footer = data.get("footer") or get_random_footer()
 
     # ── 模板 & 画风选择 ──
     st.markdown('<div class="step-label">🎨 第3步：选择模板和画风</div>', unsafe_allow_html=True)
@@ -384,42 +365,34 @@ if "comic_data" in st.session_state:
     action = "generate" if gen_btn else ("preview" if preview_btn else None)
 
     if action:
-        # NOTE: 优先从表单构造数据，回退到 JSON 编辑器
-        try:
-            if "comic_data_edited" in st.session_state:
-                final_data = json.loads(st.session_state["comic_data_edited"])
-            else:
-                final_data = dict(data)
-                final_data["title"] = edited_title
-                final_data["panels"] = edited_panels
-                final_data["footer"] = edited_footer
-        except json.JSONDecodeError:
-            st.error("🔴 JSON 格式错误")
-            final_data = None
+        # NOTE: 直接从表单输入框组装数据，不再依赖 JSON 编辑器
+        # 用户只操作输入框，不接触 JSON 结构，避免格式损坏
+        final_data = dict(data)
+        final_data["title"] = edited_title
+        final_data["panels"] = edited_panels
+        final_data["footer"] = edited_footer
 
-        if final_data:
-            # NOTE: 安全过滤所有用户输入
-            from core.sanitizer import sanitize_comic_data
-            final_data = sanitize_comic_data(final_data)
+        # NOTE: 安全过滤所有用户输入
+        from core.sanitizer import sanitize_comic_data
+        final_data = sanitize_comic_data(final_data)
 
-            # 确定模板
-            if template_choice != "auto":
-                final_template = template_choice
-                final_data["template"] = template_choice
-            else:
-                final_template = final_data.get("template", "cute_panels")
+        # 确定模板
+        if template_choice != "auto":
+            final_template = template_choice
+            final_data["template"] = template_choice
+        else:
+            final_template = final_data.get("template", "cute_panels")
 
-            if action == "generate":
-                log_action("generate", f"tpl={final_template} style={style_choice}")
-                png_bytes = run_generate(final_data, final_template, style_choice, preview_area)
-                if png_bytes:
-                    st.download_button(
-                        label="📥 下载长图", data=png_bytes,
-                        file_name=f"comic_{final_data.get('title', 'output')}.png",
-                        mime="image/png", use_container_width=True,
-                        key="mobile_download",
-                    )
-            elif action == "preview":
-                log_action("preview", f"tpl={final_template}")
-                run_preview(final_data, final_template, preview_area)
-
+        if action == "generate":
+            log_action("generate", f"tpl={final_template} style={style_choice}")
+            png_bytes = run_generate(final_data, final_template, style_choice, preview_area)
+            if png_bytes:
+                st.download_button(
+                    label="📥 下载长图", data=png_bytes,
+                    file_name=f"comic_{final_data.get('title', 'output')}.png",
+                    mime="image/png", use_container_width=True,
+                    key="mobile_download",
+                )
+        elif action == "preview":
+            log_action("preview", f"tpl={final_template}")
+            run_preview(final_data, final_template, preview_area)
