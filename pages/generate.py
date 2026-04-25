@@ -94,6 +94,32 @@ st.markdown("""
         min-height: 48px !important;
         font-size: 1em !important;
     }
+
+    /* 面板淡入动画 */
+    @keyframes fadeSlideIn {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .stExpander {
+        animation: fadeSlideIn 0.4s ease-out both;
+    }
+    .stExpander:nth-child(1) { animation-delay: 0s; }
+    .stExpander:nth-child(2) { animation-delay: 0.08s; }
+    .stExpander:nth-child(3) { animation-delay: 0.16s; }
+    .stExpander:nth-child(4) { animation-delay: 0.24s; }
+    .stExpander:nth-child(5) { animation-delay: 0.32s; }
+    .stExpander:nth-child(6) { animation-delay: 0.4s; }
+
+    /* 编辑表单区域美化 */
+    .stTextInput > div > div > input {
+        border-radius: 10px;
+        border: 1.5px solid #e0e0e0;
+        transition: border-color 0.2s;
+    }
+    .stTextInput > div > div > input:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 2px rgba(102,126,234,0.15);
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -108,27 +134,113 @@ st.markdown("""
 # ── 获取当前 API 配置 ──
 api_cfg = get_api_config()
 
+# ── Cookie 工具函数（通过 JS 注入读写浏览器 Cookie）──
+# NOTE: Streamlit 原生不支持 Cookie，通过 streamlit.components.v1.html 注入 JS 实现
+import streamlit.components.v1 as components
+import hashlib
+import urllib.parse
+
+# NOTE: 激活码配置（优先环境变量，支持多个码用逗号分隔）
+COMIC_VERIFY_CODE = os.environ.get("COMIC_VERIFY_CODE", "MKPIC2026")
+VALID_CODES = [c.strip() for c in COMIC_VERIFY_CODE.split(",")]
+# NOTE: Cookie 签名盐值，防止用户伪造
+COOKIE_SALT = os.environ.get("COOKIE_SALT", "kc_secret_2026")
+
+
+def make_cookie_token(code: str) -> str:
+    """用激活码+盐值生成签名 token，防伪造"""
+    return hashlib.sha256(f"{code}:{COOKIE_SALT}".encode()).hexdigest()[:16]
+
+
+def get_cookie_js() -> str:
+    """生成读取 Cookie 的 JS，结果通过 URL query 参数回传给 Streamlit"""
+    return """
+    <script>
+    (function() {
+        const cookies = document.cookie.split(';').reduce((acc, c) => {
+            const [k, v] = c.trim().split('=');
+            acc[k] = v;
+            return acc;
+        }, {});
+        const token = cookies['kc_token'] || '';
+        // NOTE: 通过 postMessage 把 cookie 值传给 Streamlit（仅首次）
+        if (token && !window._kc_sent) {
+            window._kc_sent = true;
+            // 将 token 写入隐藏的 query param
+            const url = new URL(window.parent.location);
+            if (!url.searchParams.has('_t')) {
+                url.searchParams.set('_t', token);
+                window.parent.history.replaceState({}, '', url);
+                window.parent.location.reload();
+            }
+        }
+    })();
+    </script>
+    """
+
+
+def set_cookie_js(token: str) -> str:
+    """生成设置 Cookie 的 JS，有效期 365 天"""
+    return f"""
+    <script>
+    document.cookie = 'kc_token={token}; path=/; max-age=31536000; SameSite=Lax';
+    </script>
+    """
+
+
 # ── 微信关注门控 ──
-# NOTE: REQUIRE_WECHAT_FOLLOW=true 时，需输入使用码才能继续
-# 具体验证逻辑（调微信 API 等）后续扩展，当前用本地验证码占位
-if REQUIRE_WECHAT_FOLLOW and not st.session_state.get("wechat_verified", False):
-    st.info(f"🔒 {WECHAT_FOLLOW_GUIDE}")
-    with st.form("wechat_verify"):
-        verify_code = st.text_input("请输入使用码", placeholder="关注公众号后获取", key="verify_code")
-        if st.form_submit_button("验证", use_container_width=True):
-            # TODO: 接入微信公众号 API 验证关注状态
-            # 当前占位逻辑：从 .local_settings.json 中读取 activation_codes 列表进行比对
-            from pages.shared import load_settings
-            settings = load_settings()
-            valid_codes = settings.get("activation_codes", [])
-            if verify_code in valid_codes:
-                st.session_state["wechat_verified"] = True
-                log_auth("wechat_verify", True)
-                st.rerun()
-            else:
-                log_auth("wechat_verify", False)
-                st.error("❌ 使用码无效")
-    st.stop()
+if REQUIRE_WECHAT_FOLLOW:
+    # 检查 URL query 参数中的 token（由 Cookie JS 回传）
+    query_token = st.query_params.get("_t", "")
+    # 检查 session_state
+    session_verified = st.session_state.get("wechat_verified", False)
+
+    # NOTE: 验证 token 是否匹配任一有效激活码
+    token_valid = any(make_cookie_token(c) == query_token for c in VALID_CODES)
+
+    if session_verified or token_valid:
+        st.session_state["wechat_verified"] = True
+    else:
+        # 注入 JS 读取 Cookie（如果有 cookie 会自动刷新带上 token）
+        components.html(get_cookie_js(), height=0)
+
+        # 显示引导弹窗
+        st.markdown("""
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    border-radius: 16px; padding: 2rem; margin: 1rem 0;
+                    color: white; text-align: center;">
+            <h2 style="margin:0 0 0.5rem 0;">🔒 首次使用需要激活</h2>
+            <p style="opacity:0.9; margin-bottom:1rem;">关注公众号，回复「激活」获取使用码</p>
+            <div style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:1rem;">
+                <span style="background:rgba(255,255,255,0.2); padding:6px 12px; border-radius:20px; font-size:0.9em;">琴墨书香的奇遇</span>
+                <span style="background:rgba(255,255,255,0.2); padding:6px 12px; border-radius:20px; font-size:0.9em;">老杨讲理</span>
+                <span style="background:rgba(255,255,255,0.2); padding:6px 12px; border-radius:20px; font-size:0.9em;">半盏茶说书</span>
+                <span style="background:rgba(255,255,255,0.2); padding:6px 12px; border-radius:20px; font-size:0.9em;">居家能手小羊</span>
+            </div>
+            <p style="font-size:0.8em; opacity:0.7;">微信搜索以上任意公众号关注即可</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        with st.form("wechat_verify"):
+            verify_code = st.text_input(
+                "请输入使用码",
+                placeholder="关注公众号后回复「激活」获取",
+                key="verify_code",
+            )
+            if st.form_submit_button("✅ 验证激活", use_container_width=True):
+                code_input = verify_code.strip().upper()
+                if code_input in [c.upper() for c in VALID_CODES]:
+                    st.session_state["wechat_verified"] = True
+                    log_auth("wechat_verify", True)
+                    # NOTE: 设置浏览器 Cookie 持久化
+                    token = make_cookie_token(code_input)
+                    components.html(set_cookie_js(token), height=0)
+                    st.success("🎉 激活成功！")
+                    st.rerun()
+                else:
+                    log_auth("wechat_verify", False)
+                    st.error("❌ 使用码无效，请检查后重试")
+        st.stop()
 
 # ══════════════════════════════════════
 # 第1步：输入主题
