@@ -97,64 +97,13 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ── 顶部标题 + 设置入口 ──
-col_title, col_settings = st.columns([5, 1])
-with col_title:
-    st.markdown("""
-    <div class="app-header">
-        <h1>📚 知识漫画生成器</h1>
-        <p>输入主题 → AI 生成内容 → 一键出图</p>
-    </div>
-    """, unsafe_allow_html=True)
-with col_settings:
-    st.markdown("<br>", unsafe_allow_html=True)
-    settings_open = st.button("⚙️", help="打开设置", key="settings_btn")
-
-# ── 设置面板（点击齿轮展开）──
-if settings_open:
-    st.session_state["show_settings"] = not st.session_state.get("show_settings", False)
-
-if st.session_state.get("show_settings", False):
-    with st.expander("⚙️ 大模型设置", expanded=True):
-        from config import LLM_PROVIDERS
-
-        api_cfg = get_api_config()
-        provider_keys = list(LLM_PROVIDERS.keys())
-        cur_provider = api_cfg["provider"]
-        cur_idx = provider_keys.index(cur_provider) if cur_provider in provider_keys else 0
-
-        provider_choice = st.selectbox(
-            "模型提供商",
-            options=provider_keys,
-            index=cur_idx,
-            format_func=lambda x: LLM_PROVIDERS[x]["name"],
-            key="mobile_provider",
-        )
-        provider_info = LLM_PROVIDERS[provider_choice]
-
-        api_key_input = st.text_input(
-            "API Key",
-            value=api_cfg["api_key"],
-            type="password",
-            key="mobile_api_key",
-        )
-
-        if provider_choice == "custom":
-            base_url_input = st.text_input("API Base URL", value=api_cfg["base_url"], key="mobile_base_url")
-            model_input = st.text_input("模型名称", value=api_cfg["model"], key="mobile_model")
-        else:
-            model_list = provider_info.get("models", [])
-            default_model = provider_info.get("default_model", "")
-            cur_model_idx = model_list.index(api_cfg["model"]) if api_cfg["model"] in model_list else (
-                model_list.index(default_model) if default_model in model_list else 0
-            )
-            model_input = st.selectbox("模型", options=model_list, index=cur_model_idx, key="mobile_model_sel")
-            base_url_input = provider_info["base_url"]
-
-        if st.button("💾 保存设置", use_container_width=True, key="save_settings_btn"):
-            save_api_config(provider_choice, api_key_input, base_url_input, model_input)
-            st.success("✅ 设置已保存")
-
+# ── 顶部标题 ──
+st.markdown("""
+<div class="app-header">
+    <h1>📚 知识漫画生成器</h1>
+    <p>输入主题 → AI 生成内容 → 一键出图</p>
+</div>
+""", unsafe_allow_html=True)
 
 # ── 获取当前 API 配置 ──
 api_cfg = get_api_config()
