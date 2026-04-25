@@ -161,27 +161,76 @@ if analyze_btn:
                 st.session_state["comic_data_edited"] = json.dumps(data, ensure_ascii=False, indent=2)
 
 # ══════════════════════════════════════
-# 第2步：审核修改 + 选模板/画风 + 生成
+# 第2步：审核修改（表单化编辑）
 # ══════════════════════════════════════
 if "comic_data" in st.session_state:
     data = st.session_state["comic_data"]
     template_from_json = data.get("template", "cute_panels")
 
     st.markdown('<div class="step-label">✏️ 第2步：审核内容</div>', unsafe_allow_html=True)
-    st.markdown(f"**标题：** {data.get('title', '')}")
 
-    # 可编辑 JSON
-    with st.expander("编辑内容（点击展开）"):
+    # ── 标题编辑 ──
+    edited_title = st.text_input(
+        "📝 标题",
+        value=data.get("title", ""),
+        max_chars=30,
+        key="edit_title",
+    )
+
+    # ── 面板列表编辑 ──
+    panels = data.get("panels", [])
+    edited_panels = []
+    for i, panel in enumerate(panels):
+        with st.expander(f"📋 面板 {i + 1}：{panel.get('heading', '')}", expanded=(i == 0)):
+            heading = st.text_input(
+                "小标题",
+                value=panel.get("heading", ""),
+                max_chars=20,
+                key=f"panel_heading_{i}",
+            )
+            text = st.text_area(
+                "内容",
+                value=panel.get("text", ""),
+                height=80,
+                key=f"panel_text_{i}",
+            )
+            icons_str = st.text_input(
+                "图标（用空格分隔）",
+                value=" ".join(panel.get("icons", [])),
+                key=f"panel_icons_{i}",
+            )
+            edited_panels.append({
+                **panel,
+                "heading": heading,
+                "text": text,
+                "icons": [ic.strip() for ic in icons_str.split() if ic.strip()],
+            })
+
+    # ── Footer 编辑 ──
+    edited_footer = st.text_input(
+        "📌 底部文案",
+        value=data.get("footer", "知识漫画生成器"),
+        max_chars=50,
+        key="edit_footer",
+    )
+
+    # ── 高级编辑（原始 JSON，默认折叠） ──
+    with st.expander("🔧 高级：编辑原始 JSON"):
+        # NOTE: 同步表单修改到 JSON
+        synced_data = dict(data)
+        synced_data["title"] = edited_title
+        synced_data["panels"] = edited_panels
+        synced_data["footer"] = edited_footer
         edited_json = st.text_area(
             "JSON",
-            value=st.session_state.get("comic_data_edited", ""),
+            value=json.dumps(synced_data, ensure_ascii=False, indent=2),
             height=300,
             label_visibility="collapsed",
             key="mobile_json",
         )
         st.session_state["comic_data_edited"] = edited_json
 
-    # ── 模板 & 画风选择（使用动态模板列表） ──
+    # ── 模板 & 画风选择 ──
     st.markdown('<div class="step-label">🎨 第3步：选择模板和画风</div>', unsafe_allow_html=True)
 
     all_templates = get_all_templates()
@@ -223,13 +272,24 @@ if "comic_data" in st.session_state:
     action = "generate" if gen_btn else ("preview" if preview_btn else None)
 
     if action:
+        # NOTE: 优先从表单构造数据，回退到 JSON 编辑器
         try:
-            final_data = json.loads(st.session_state.get("comic_data_edited", "{}"))
+            if "comic_data_edited" in st.session_state:
+                final_data = json.loads(st.session_state["comic_data_edited"])
+            else:
+                final_data = dict(data)
+                final_data["title"] = edited_title
+                final_data["panels"] = edited_panels
+                final_data["footer"] = edited_footer
         except json.JSONDecodeError:
             st.error("🔴 JSON 格式错误")
             final_data = None
 
         if final_data:
+            # NOTE: 安全过滤所有用户输入
+            from core.sanitizer import sanitize_comic_data
+            final_data = sanitize_comic_data(final_data)
+
             # 确定模板
             if template_choice != "auto":
                 final_template = template_choice
@@ -250,3 +310,4 @@ if "comic_data" in st.session_state:
             elif action == "preview":
                 log_action("preview", f"tpl={final_template}")
                 run_preview(final_data, final_template, preview_area)
+
