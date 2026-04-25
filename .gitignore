@@ -9,6 +9,10 @@ build/
 # 本地设置（包含加密的 API Key）
 .local_settings.json
 
+# 私有部署配置（frp、systemd 等不上传）
+deploy/
+start_frpc.bat
+
 # 生成的输出文件
 output/
 

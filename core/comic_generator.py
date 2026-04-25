@@ -104,7 +104,18 @@ def analyze_content(
     if json_match:
         raw = json_match.group(1)
 
-    data = json.loads(raw)
+    # NOTE: 兜底：尝试提取第一个 { ... } 块
+    if not raw.strip().startswith("{"):
+        brace_match = re.search(r"\{.*\}", raw, re.DOTALL)
+        if brace_match:
+            raw = brace_match.group(0)
+
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError as e:
+        logger.error("[LLM] JSON 解析失败: %s\n原始内容: %s", e, raw[:300])
+        raise ValueError(f"AI 返回的 JSON 格式错误: {e}\n内容前200字: {raw[:200]}")
+
     logger.info("[LLM] 模板: %s, 标题: %s", data.get("template"), data.get("title"))
     return data
 
