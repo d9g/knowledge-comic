@@ -13,7 +13,7 @@ import streamlit as st
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from config import STYLE_PRESETS, get_all_templates, REQUIRE_WECHAT_FOLLOW, WECHAT_FOLLOW_GUIDE
+from config import STYLE_PRESETS, get_all_templates, REQUIRE_WECHAT_FOLLOW, WECHAT_FOLLOW_GUIDE, get_random_footer
 from core.audit import log_visit, log_action, log_auth
 from pages.shared import (
     init_session, get_api_config, save_api_config,
@@ -209,7 +209,7 @@ if "comic_data" in st.session_state:
     # ── Footer 编辑 ──
     edited_footer = st.text_input(
         "📌 底部文案",
-        value=data.get("footer", "知识漫画生成器"),
+        value=data.get("footer") or get_random_footer(),
         max_chars=50,
         key="edit_footer",
     )

@@ -78,7 +78,8 @@ def sanitize_comic_data(data: dict) -> dict:
     @returns: 安全过滤后的数据
     """
     data["title"] = sanitize_text(data.get("title", ""), "title")
-    data["footer"] = sanitize_text(data.get("footer", "知识漫画生成器"), "footer")
+    from config import get_random_footer
+    data["footer"] = sanitize_text(data.get("footer") or get_random_footer(), "footer")
 
     # 过滤 panels 列表
     for panel in data.get("panels", []):

@@ -64,6 +64,29 @@ LLM_PROVIDERS = {
 # NOTE: 默认提供商
 DEFAULT_PROVIDER = "bailian"
 
+# ── 公众号引流 ──
+# NOTE: 每次生成随机选一个公众号名称作为 footer，实现均匀引流
+WECHAT_ACCOUNTS = [
+    "琴墨书香的奇遇",
+    "老杨讲理",
+    "半盏茶说书",
+    "居家能手小羊",
+]
+
+
+def get_random_footer() -> str:
+    """
+    随机生成一条公众号引流 footer
+
+    NOTE: 使用 os.urandom 保证真随机，不依赖伪随机种子
+    """
+    import struct
+    # NOTE: 用系统熵源生成真随机索引，避免 random 模块的伪随机周期性
+    random_bytes = os.urandom(4)
+    idx = struct.unpack("I", random_bytes)[0] % len(WECHAT_ACCOUNTS)
+    return f"关注公众号「{WECHAT_ACCOUNTS[idx]}」免费生成"
+
+
 # ── 访问控制 ──
 # NOTE: Admin 后台密码保护（环境变量配置，为空则不需要密码）
 ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
@@ -77,8 +100,9 @@ REQUIRE_WECHAT_FOLLOW = os.environ.get("REQUIRE_WECHAT_FOLLOW", "false").lower()
 # 关注引导文案（开关开启时显示）
 WECHAT_FOLLOW_GUIDE = os.environ.get(
     "WECHAT_FOLLOW_GUIDE",
-    '请关注公众号「XXX」，发送"激活"获取使用码',
+    '请关注公众号，发送"激活"获取使用码',
 )
+
 
 # ── ComfyUI 配置 ──
 # NOTE: 云端部署时通过环境变量 COMFYUI_URL 指向 frp 隧道映射的地址
