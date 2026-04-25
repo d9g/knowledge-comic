@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+  @font-face {
+    font-family: 'KuaiLe';
+    src: url('./fonts/ZCOOLKuaiLe-Regular.ttf');
+  }
+  @font-face {
+    font-family: 'MSYH';
+    src: url('./fonts/msyh.ttc');
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 750px;
+    font-family: 'MSYH', 'Microsoft YaHei', sans-serif;
+    color: #3D2B1F;
+    background: #FFF8F0;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #E85D26, #F08C40);
+    padding: 32px 30px;
+    text-align: center;
+    border-radius: 0 0 28px 28px;
+  }
+  .header h1 {
+    font-family: 'KuaiLe', cursive;
+    font-size: 46px;
+    color: #FFF;
+    text-shadow: 3px 3px 6px rgba(0,0,0,0.2);
+    letter-spacing: 8px;
+  }
+
+  .section {
+    padding: 22px 28px;
+    border-bottom: 2px dashed #E0D0C0;
+  }
+  .section:last-of-type { border-bottom: none; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .section-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px; height: 38px;
+    background: #E85D26;
+    color: #FFF;
+    border-radius: 50%;
+    font-size: 20px;
+    font-weight: 900;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-family: 'KuaiLe', cursive;
+    font-size: 30px;
+    font-weight: 900;
+    color: #E85D26;
+  }
+  .section-subtitle {
+    font-size: 20px;
+    color: #8B6914;
+  }
+
+  .section-desc {
+    font-size: 17px;
+    line-height: 1.8;
+    color: #5A4030;
+    margin: 12px 0;
+  }
+
+  .illust-row {
+    display: flex;
+    gap: 18px;
+    margin: 14px 0;
+    align-items: flex-start;
+  }
+
+  .step-tip {
+    flex: 1;
+    background: #FFF0E0;
+    border: 2px solid #F0A060;
+    border-radius: 15px;
+    padding: 14px 16px;
+    font-size: 16px;
+    color: #C05020;
+    line-height: 1.7;
+  }
+
+  .illust-box {
+    flex: 1;
+    min-height: 180px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: rgba(232, 93, 38, 0.06);
+    border: 2px dashed rgba(0,0,0,0.1);
+  }
+  .illust-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .illust-placeholder {
+    width: 100%;
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: #A08060;
+  }
+
+  .annotations {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .annotation {
+    display: inline-block;
+    background: #E85D26;
+    color: #FFF;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .footer {
+    text-align: center;
+    padding: 28px;
+    font-size: 20px;
+    color: #A08060;
+  }
+</style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>{{ title }}</h1>
+  </div>
+
+  {% for section in sections %}
+  <div class="section">
+    <div class="section-header">
+      <span class="section-number">{{ section.number }}</span>
+      <span class="section-title">{{ section.title }}</span>
+      <span class="section-subtitle">{{ section.subtitle }}</span>
+    </div>
+
+    <div class="section-desc">{{ section.description }}</div>
+
+    <div class="illust-row">
+      <div class="step-tip">{{ section.step_tip }}</div>
+      <div class="illust-box">
+        {% if section.image_path %}
+          <img src="{{ section.image_path }}" alt="{{ section.title }}">
+        {% else %}
+          <div class="illust-placeholder">{{ section.title }} 插画</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="annotations">
+      {% for ann in section.annotations %}
+        <span class="annotation">{{ ann }}</span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+
+  <div class="footer">{{ footer }}</div>
+
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+  @font-face {
+    font-family: 'KuaiLe';
+    src: url('./fonts/ZCOOLKuaiLe-Regular.ttf');
+  }
+  @font-face {
+    font-family: 'MSYH';
+    src: url('./fonts/msyh.ttc');
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 750px;
+    font-family: 'MSYH', 'Microsoft YaHei', sans-serif;
+    background: #FAE8D4;
+  }
+
+  .deco-top {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    padding-top: 20px;
+    font-size: 24px;
+  }
+
+  .header {
+    text-align: center;
+    padding: 30px 30px 15px;
+    position: relative;
+  }
+  .header h1 {
+    font-family: 'KuaiLe', cursive;
+    font-size: 48px;
+    color: #5B3A1E;
+    text-shadow: 3px 3px 0 rgba(255,255,255,0.6);
+    letter-spacing: 6px;
+    display: inline-block;
+    position: relative;
+  }
+  .header h1::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: -10px;
+    right: -10px;
+    height: 16px;
+    background: rgba(255, 200, 100, 0.45);
+    border-radius: 8px;
+    z-index: -1;
+  }
+
+  .mascot {
+    position: absolute;
+    top: 10px;
+    right: 30px;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px dashed #D4956A;
+  }
+  .mascot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .mascot-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #FFDAB9, #FFB6C1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: #8B5E3C;
+  }
+
+  .panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    padding: 12px 22px;
+  }
+
+  .panel {
+    border-radius: 20px;
+    padding: 18px;
+    min-height: 260px;
+    position: relative;
+  }
+  /* NOTE: 颜色循环支持 3-6 个面板，奇数最后一个自动居中 */
+  .panel:nth-child(6n+1) { background: #E8C9A0; }
+  .panel:nth-child(6n+2) { background: #F5D5C8; }
+  .panel:nth-child(6n+3) { background: #D4C4B0; }
+  .panel:nth-child(6n+4) { background: #C8E6E8; }
+  .panel:nth-child(6n+5) { background: #D8E8C8; }
+  .panel:nth-child(6n+6) { background: #E8D4F0; }
+  /* 奇数面板时最后一个居中占满 */
+  .panel:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    max-width: 50%;
+    margin: 0 auto;
+  }
+
+  .panel-title {
+    font-family: 'KuaiLe', cursive;
+    font-size: 26px;
+    font-weight: 900;
+    color: #4A3520;
+    margin-bottom: 6px;
+  }
+  .panel-title::before {
+    content: '•';
+    color: #E07040;
+    margin-right: 4px;
+  }
+
+  .panel-text {
+    font-size: 17px;
+    color: #5A4030;
+    line-height: 1.7;
+    margin-top: 6px;
+  }
+
+  .panel-illust {
+    width: 100%;
+    height: 110px;
+    border-radius: 12px;
+    margin-top: 10px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.4);
+    border: 2px dashed rgba(0,0,0,0.1);
+  }
+  .panel-illust img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+  .panel-illust-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: #8B7355;
+  }
+
+  .panel-icons {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    font-size: 20px;
+  }
+
+  .footer {
+    text-align: center;
+    padding: 22px;
+    font-size: 17px;
+    color: #8B7355;
+  }
+  .footer-text {
+    display: inline-block;
+    padding: 8px 28px;
+    border: 2px dashed #C4A882;
+    border-radius: 25px;
+    background: rgba(255,255,255,0.3);
+  }
+</style>
+</head>
+<body>
+
+  <div class="deco-top">
+    <span>⭐</span><span>❤️</span><span>🌿</span><span>✨</span><span>💛</span>
+  </div>
+
+  <div class="header">
+    <h1>{{ title }}</h1>
+    <div class="mascot">
+      {% if mascot_image %}
+        <img src="{{ mascot_image }}" alt="主角">
+      {% else %}
+        <div class="mascot-placeholder">插画生成中</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="panels">
+    {% for panel in panels %}
+    <div class="panel">
+      <div class="panel-title">{{ panel.heading }}：</div>
+      <div class="panel-text">{{ panel.text }}</div>
+      <div class="panel-illust">
+        {% if panel.image_path %}
+          <img src="{{ panel.image_path }}" alt="{{ panel.heading }}">
+        {% else %}
+          <div class="panel-illust-placeholder">{{ panel.heading }} 插画</div>
+        {% endif %}
+      </div>
+      <div class="panel-icons">
+        {% for icon in panel.icons %}
+          <span>{{ icon }}</span>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="footer">
+    <div class="footer-text">{{ footer }}</div>
+  </div>
+
+</body>
+</html>

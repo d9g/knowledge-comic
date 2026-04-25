@@ -1,0 +1,14 @@
+# frp 客户端配置（本地 GPU 机器 Windows）
+# 路径：与 frpc.exe 同目录
+
+serverAddr = "你的云服务器公网IP"
+serverPort = 7000
+
+# NOTE: 只穿透 ComfyUI 的 API 端口
+# 云端 Streamlit 通过 localhost:8188 访问本地 ComfyUI
+[[proxies]]
+name = "comfyui"
+type = "tcp"
+localIP = "127.0.0.1"
+localPort = 8188
+remotePort = 8188

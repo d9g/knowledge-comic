@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>顺时养生 -- 春吃芽</title>
+    <style>
+        @font-face {
+            font-family: 'KuaiLe';
+            src: url('./fonts/ZCOOLKuaiLe-Regular.ttf') format('truetype');
+        }
+        @font-face {
+            font-family: 'MSYH';
+            src: url('./fonts/msyh.ttc') format('truetype');
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #FDFBF5; /* 淡米色背景 */
+            font-family: 'MSYH', sans-serif;
+            color: #333;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 750px;
+            background-color: #FDFBF5;
+            padding: 40px 20px;
+            box-sizing: border-box;
+            position: relative;
+            /* 模拟纸张纹理或阴影 */
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        }
+
+        /* 顶部标题区域 */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .main-title {
+            font-family: 'KuaiLe', cursive;
+            font-size: 48px;
+            color: #222;
+            background-color: #FFF5D6; /* 淡黄色背景条 */
+            display: inline-block;
+            padding: 10px 40px;
+            border-radius: 50px;
+            margin: 0;
+            letter-spacing: 4px;
+        }
+
+        .sub-title {
+            font-family: 'KuaiLe', cursive;
+            font-size: 28px;
+            color: #333;
+            margin-top: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        /* 网格布局 */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            /* 使用 gap 模拟分割线，或者用 border */
+            /* 原图是有细线的，我们用 border 来实现 */
+            border-top: 2px solid #E0D8C8;
+            border-left: 2px solid #E0D8C8;
+        }
+
+        .grid-item {
+            position: relative;
+            border-right: 2px solid #E0D8C8;
+            border-bottom: 2px solid #E0D8C8;
+            padding: 20px 10px 40px 10px; /* 底部留多点空间给图片 */
+            text-align: center;
+            background-color: #FDFBF5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 220px;
+        }
+
+        /* 标签样式 */
+        .item-label {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background-color: #FFF8E1;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-family: 'KuaiLe', cursive;
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            z-index: 2;
+        }
+
+        /* 图片样式 */
+        .item-image {
+            width: 100%;
+            max-width: 180px;
+            height: auto;
+            margin-top: 30px; /* 给标签留位置 */
+            object-fit: contain;
+        }
+
+        .placeholder {
+            width: 100px;
+            height: 100px;
+            background-color: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            margin-top: 30px;
+            border-radius: 10px;
+        }
+
+        /* 内容文字 (原图中没有，但模板要求保留) */
+        .item-text {
+            font-size: 14px;
+            color: #666;
+            margin-top: 10px;
+            line-height: 1.5;
+            display: none; /* 原图没有正文，默认隐藏，如果有内容可以显示 */
+        }
+        
+        /* 如果有 text 内容则显示 */
+        .item-text:not(:empty) {
+            display: block;
+        }
+
+        /* 图标列表 */
+        .item-icons {
+            margin-top: 10px;
+            font-size: 20px;
+        }
+
+        /* 底部 */
+        .footer {
+            text-align: right;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #999;
+            padding-right: 10px;
+        }
+
+        /* 奇数面板居中处理 */
+        /* 如果最后一个元素是第 3n+1 个 (即 1, 4, 7...)，它会在第一列。
+           我们需要让它跨列或者居中。
+           在 Grid 中，如果总数是 7 (3x2 + 1)，最后一个会在 (3, 1)。
+           我们要让它去 (3, 2)。
+        */
+        .grid-item:last-child:nth-child(3n+1) {
+            grid-column: 2; 
+        }
+        
+        /* 如果总数是 8 (3x2 + 2)，最后两个在 (3,1) 和 (3,2)。
+           通常不需要特殊处理，除非要求最后两个也居中，但题目只说了“最后一个面板如果是奇数”。
+           这意味着总数是奇数。
+           如果是 7 个，第 7 个居中。
+           如果是 5 个，第 5 个居中 (3n+2 -> 2, 3n+1 -> 1? No. 5 = 3*1 + 2. Last is at pos 2. Wait.)
+           
+           让我们重新算一下 Grid 位置。
+           Total 1: Pos 1. (3n+1). Center -> Col 2.
+           Total 2: Pos 1, 2.
+           Total 3: Pos 1, 2, 3.
+           Total 4: Pos 1, 2, 3, 4(Pos 1 of row 2). (3n+1). Center -> Col 2.
+           Total 5: Pos 1..5 (Pos 2 of row 2).
+           Total 6: Pos 1..6.
+           Total 7: Pos 1..7 (Pos 1 of row 3). (3n+1). Center -> Col 2.
+           
+           所以逻辑是：如果 last-child 是 3n+1，则 grid-column: 2。
+        */
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1 class="main-title">{{ title }}</h1>
+        <div class="sub-title">春天多吃灵气菜</div>
+    </div>
+
+    <div class="grid-container">
+        {% for panel in panels %}
+        <div class="grid-item">
+            <div class="item-label">{{ panel.heading }}</div>
+            
+            {% if panel.image_path %}
+                <img src="{{ panel.image_path }}" alt="{{ panel.heading }}" class="item-image">
+            {% else %}
+                <div class="placeholder">占位</div>
+            {% endif %}
+
+            {% if panel.text %}
+            <div class="item-text">{{ panel.text }}</div>
+            {% endif %}
+
+            {% if panel.icons %}
+            <div class="item-icons">
+                {% for icon in panel.icons %}
+                    {{ icon }}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="footer">
+        {{ footer }}
+    </div>
+    
+    {% if mascot_image %}
+    <div style="text-align: center; margin-top: 20px;">
+        <img src="{{ mascot_image }}" style="max-width: 100px;">
+    </div>
+    {% endif %}
+</div>
+
+</body>
+</html>

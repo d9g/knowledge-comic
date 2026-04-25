@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>养生茶方</title>
+    <style>
+        @font-face {
+            font-family: 'KuaiLe';
+            src: url('./fonts/ZCOOLKuaiLe-Regular.ttf') format('truetype');
+        }
+        @font-face {
+            font-family: 'MSYH';
+            src: url('./fonts/msyh.ttc') format('truetype');
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 750px;
+            background-color: #f7f7f5; /* 模拟纸张背景 */
+            background-image: radial-gradient(#e0e0e0 1px, transparent 1px);
+            background-size: 20px 20px;
+            padding: 30px;
+            box-sizing: border-box;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .main-title {
+            font-family: 'KuaiLe', cursive;
+            font-size: 48px;
+            color: #222;
+            margin: 0 0 10px 0;
+            letter-spacing: 2px;
+        }
+
+        .sub-title {
+            font-family: 'MSYH', sans-serif;
+            font-size: 24px;
+            color: #333;
+            background-color: #ffeaa7;
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 4px;
+            margin: 0;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+            background-color: #dcdcdc; /* 网格线颜色 */
+            border: 2px solid #dcdcdc;
+        }
+
+        .panel {
+            background-color: #f7f7f5;
+            padding: 20px 15px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        /* 奇数面板居中处理 */
+        .panel.center-last {
+            grid-column: 2;
+        }
+
+        .panel-title {
+            font-family: 'KuaiLe', cursive;
+            font-size: 26px;
+            color: #222;
+            margin: 0 0 15px 0;
+            position: relative;
+            display: inline-block;
+        }
+
+        .panel-title::after {
+            content: '';
+            display: block;
+            width: 100%;
+            height: 4px;
+            background-color: #ffeaa7;
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            border-radius: 2px;
+        }
+
+        .panel-image {
+            width: 180px;
+            height: 140px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .panel-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .placeholder {
+            width: 100%;
+            height: 100%;
+            background-color: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .ingredients {
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .ing-label {
+            font-family: 'KuaiLe', cursive;
+            background-color: #ffeaa7;
+            color: #333;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 14px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .ing-icons {
+            font-size: 20px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .ing-text {
+            font-family: 'MSYH', sans-serif;
+            font-size: 12px;
+            color: #555;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .ing-text span {
+            flex: 1;
+            text-align: center;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-family: 'MSYH', sans-serif;
+            color: #888;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1 class="main-title">{{ title }}</h1>
+        <h2 class="sub-title">办公室宿舍必备·喝出好状态</h2>
+    </div>
+
+    <div class="grid">
+        {% for panel in panels %}
+        <div class="panel {% if loop.last and panels|length % 3 == 1 %}center-last{% endif %}">
+            <h3 class="panel-title">{{ panel.heading }}</h3>
+            
+            <div class="panel-image">
+                {% if panel.image_path %}
+                    <img src="{{ panel.image_path }}" alt="{{ panel.heading }}">
+                {% else %}
+                    <div class="placeholder">占位</div>
+                {% endif %}
+            </div>
+
+            <div class="ingredients">
+                <span class="ing-label">食材</span>
+                <div class="ing-icons">
+                    {{ panel.icons }}
+                </div>
+                <div class="ing-text">
+                    {{ panel.text }}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="footer">
+        {{ footer }}
+    </div>
+</div>
+
+</body>
+</html>

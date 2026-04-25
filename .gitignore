@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+
+# 本地设置（包含加密的 API Key）
+.local_settings.json
+
+# 生成的输出文件
+output/
+
+# 审计日志
+logs/
+
+# 环境变量（含密码）
+.env
+
+# 临时渲染文件
+comic_templates/_render_*.html
+comic_templates/_preview_custom.html
+output/_preview_tmp.png
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+.DS_Store

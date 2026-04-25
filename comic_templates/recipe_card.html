@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+  @font-face {
+    font-family: 'KuaiLe';
+    src: url('./fonts/ZCOOLKuaiLe-Regular.ttf');
+  }
+  @font-face {
+    font-family: 'MSYH';
+    src: url('./fonts/msyh.ttc');
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 750px;
+    font-family: 'MSYH', 'Microsoft YaHei', sans-serif;
+    background: #F5F0E8;
+    color: #3D2B1F;
+  }
+
+  .header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    padding: 25px 30px;
+    gap: 20px;
+    position: relative;
+  }
+  .header-deco {
+    flex: 1;
+    height: 140px;
+    border-radius: 15px;
+    overflow: hidden;
+    background: rgba(107, 58, 125, 0.05);
+    border: 2px dashed rgba(0,0,0,0.08);
+  }
+  .header-deco img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .header-deco-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: #A08060;
+  }
+  .header-title {
+    font-family: 'KuaiLe', cursive;
+    writing-mode: vertical-rl;
+    font-size: 68px;
+    font-weight: 900;
+    color: #6B3A7D;
+    text-shadow: 3px 3px 6px rgba(0,0,0,0.08);
+    letter-spacing: 10px;
+    line-height: 1.2;
+    flex-shrink: 0;
+  }
+
+  .content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 0 18px;
+  }
+
+  .block-title {
+    font-family: 'KuaiLe', cursive;
+    font-size: 26px;
+    font-weight: 900;
+    color: #6B3A7D;
+    display: inline-block;
+    padding: 4px 20px;
+    border: 2px solid #6B3A7D;
+    border-radius: 20px;
+    margin-bottom: 14px;
+  }
+
+  .ingredients {
+    grid-column: 1;
+    padding: 18px;
+  }
+  .ingredient-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .ingredient-item { text-align: center; }
+  .ingredient-img {
+    width: 100%;
+    height: 75px;
+    border-radius: 10px;
+    border: 2px solid #E8E0D5;
+    background: #FFF;
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
+  .ingredient-img img { width: 100%; height: 100%; object-fit: cover; }
+  .ingredient-img-placeholder {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: #A08060;
+  }
+  .ingredient-name { font-size: 15px; color: #5A4030; font-weight: 700; }
+
+  .cooking {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    padding: 18px;
+  }
+  .steps-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .step-card {
+    background: #FFF;
+    border-radius: 12px;
+    padding: 10px;
+    border: 2px solid #E8E0D5;
+  }
+  .step-number {
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    width: 26px; height: 26px;
+    background: #6B3A7D;
+    color: #FFF;
+    border-radius: 50%;
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .step-time {
+    display: inline-block;
+    background: #F0E8F5;
+    color: #6B3A7D;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    margin-left: 4px;
+    font-weight: 700;
+  }
+  .step-img {
+    width: 100%; height: 65px;
+    border-radius: 8px;
+    background: rgba(107,58,125,0.06);
+    border: 1px dashed rgba(0,0,0,0.08);
+    margin: 5px 0;
+    overflow: hidden;
+  }
+  .step-img img { width: 100%; height: 100%; object-fit: cover; }
+  .step-img-placeholder {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: #A08060;
+  }
+  .step-text { font-size: 13px; color: #5A4030; line-height: 1.5; }
+
+  .prep {
+    grid-column: 1;
+    padding: 18px;
+  }
+  .prep-steps { margin-top: 10px; }
+  .prep-card {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: #FFF;
+    border-radius: 12px;
+    padding: 10px;
+    border: 2px solid #E8E0D5;
+    margin-bottom: 8px;
+  }
+  .prep-img {
+    width: 75px; height: 75px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(107,58,125,0.06);
+    border: 1px dashed rgba(0,0,0,0.08);
+  }
+  .prep-img img { width: 100%; height: 100%; object-fit: cover; }
+
+  .footer {
+    text-align: center;
+    padding: 22px;
+    font-size: 18px;
+    color: #A08060;
+  }
+</style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="header-deco">
+      {% if header_image %}
+        <img src="{{ header_image }}" alt="装饰">
+      {% else %}
+        <div class="header-deco-placeholder">食材装饰图</div>
+      {% endif %}
+    </div>
+    <div class="header-title">{{ title }}</div>
+  </div>
+
+  <div class="content">
+    <div class="ingredients">
+      <div class="block-title">食材</div>
+      <div class="ingredient-grid">
+        {% for item in ingredients %}
+        <div class="ingredient-item">
+          <div class="ingredient-img">
+            {% if item.image_path %}
+              <img src="{{ item.image_path }}" alt="{{ item.name }}">
+            {% else %}
+              <div class="ingredient-img-placeholder">{{ item.name }}</div>
+            {% endif %}
+          </div>
+          <div class="ingredient-name">{{ item.name }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="cooking">
+      <div class="block-title">制作</div>
+      <div class="steps-grid">
+        {% for step in cooking_steps %}
+        <div class="step-card">
+          <div>
+            <span class="step-number">{{ step.number }}</span>
+            {% if step.time %}<span class="step-time">{{ step.time }}</span>{% endif %}
+          </div>
+          <div class="step-img">
+            {% if step.image_path %}
+              <img src="{{ step.image_path }}" alt="步骤{{ step.number }}">
+            {% else %}
+              <div class="step-img-placeholder">步骤{{ step.number }}</div>
+            {% endif %}
+          </div>
+          <div class="step-text">{{ step.text }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="prep">
+      <div class="block-title">预处理</div>
+      <div class="prep-steps">
+        {% for step in prep_steps %}
+        <div class="prep-card">
+          <div class="prep-img">
+            {% if step.image_path %}
+              <img src="{{ step.image_path }}" alt="预处理{{ step.number }}">
+            {% else %}
+              <div class="step-img-placeholder">预处理{{ step.number }}</div>
+            {% endif %}
+          </div>
+          <div>
+            <span class="step-number">{{ step.number }}</span>
+            <div class="step-text">{{ step.text }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">{{ footer }}</div>
+
+</body>
+</html>
